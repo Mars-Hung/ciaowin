@@ -1,0 +1,251 @@
+﻿<html>
+<head>
+    <title>潮味決 延三店 盤點表</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/floatthead"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/huebee@2/dist/huebee.min.css">
+    <script src="https://unpkg.com/huebee@2/dist/huebee.pkgd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+<body>
+    <div class="container-fluid">
+        <h2>潮味決 延三店 盤點表</h2>
+        <p>This is some text.</p>
+        
+        <div class="row" id="app-5">
+            <div class="col-12">
+
+
+                <table id="tableMain" class="table table-sm table-bordered text-center">
+                    <thead>
+                        <tr class="table-primary font-weight-bold">
+                            <td>廠商</td>
+                            <td>品名</td>
+                            <!--<td>儲存位置</td>-->
+                            <td>安全量</td>
+                            <td>盤點紀錄</td>
+                            <td>最新盤點</td>
+                            <td>盤點量</td>
+                            <td>補充描述</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in items">
+                            <td>
+                                    <input class="form-control form-control-sm text-center" v-model="item.vend" />
+                            </td>
+                            <td>
+                                    <input class="form-control form-control-sm text-center" v-model="item.nm" />
+                            </td>
+                            <td>
+                                <div class="input-group">
+                                    <!--<select v-model="item.color">
+                <option value="#edb879" style="background-color:#edb879">顏色1</option>
+                <option value="#1979a9" style="background-color:#1979a9">顏色2</option>
+                <option value="#e07b39" style="background-color:#e07b39">顏色3</option>
+                <option value="#69bdd2" style="background-color:#69bdd2">顏色4</option>
+                <option value="#80391e" style="background-color:#80391e">顏色5</option>
+            </select>-->
+                                    <input class="form-control form-control-sm text-right" style="width:30px" v-model="item.safeQty" />
+                                    <input class="form-control form-control-sm" style="width:25px" v-model="item.unit" />
+                                </div>
+                            </td>
+                            <td class="text-right">
+                                <ul class="list-group list-group-horizontal">
+                                    <li class="list-group-item" v-for="checkData in item.checkHistory">{{checkData.checkQty}}</li>
+                                </ul>
+                            </td>
+                            <td>
+                                {{item.latestCheckDate}}
+                            </td>
+                            <td class="text-center">
+                                <div class="input-group">
+                                    <input class="form-control form-control-sm text-right" v-model="item.checkQty" type="number" />
+                                    <input class="form-control form-control-sm" v-model="item.checkUnit" />
+                                </div>
+                            </td>
+                            <td>
+                                    <input class="form-control form-control-sm text-right" v-model="item.desc" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="btn-group float-right">
+                    <button onclick="SaveCheckData()" class="btn btn-primary">
+                        <span class="fa fa-save"></span>
+                        存檔
+                    </button>
+                    <button onclick="AddNew()" class="btn btn-info ">
+                        <span class="fa fa-plus"></span>
+                        新增
+                    </button>
+                </div>
+            </div>
+           
+        </div>
+    </div>
+</body>
+</html>
+<style>
+    .list-group-item{
+        font-size:smaller;
+        width:25px;
+        padding:.01rem
+    }
+</style>
+<script>
+    
+    var _url = "https://api.jsonbin.io/b/5ee24c7a655d87580c4835df"
+    var _key = "$2a$10$I8UnOTPT4Rj4Mf6UUM4r/.MCayuYt3bHT0z7ePmqsFG3aS1l5o4Cy";
+    var app5 = new Vue({
+        el: '#app-5',
+        data: {
+            items: []
+        },
+        mounted: function () {
+            var self = this;
+            $.ajax({
+                url: _url + "/latest",
+                method: 'GET',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("secret-key", _key);
+                },
+                success: function (data) {
+                    console.log(data)
+                    //self.items = JSON.parse(data);
+                    self.items = data;
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        }
+    })
+    $(function () {
+        //BindData();
+        var $table = $('#tableMain').floatThead();
+        $('input').click(function () {
+            $(this).select();
+        })
+        //var colorInput = document.querySelector('.colorpicker');
+        //var hueb = new Huebee(colorInput, {
+        //    // options
+        //    setBGColor: true,
+        //    saturations: 2,
+        //});
+    })
+    var _data;
+    function AddNew() {
+        var newItem = {};
+        app5.items.push(newItem);
+    }
+    function SaveCheckData() {
+        app5.items.forEach(function (item, index) {
+            var today = new Date().toLocaleDateString();
+            var maxRecordCnt = 3;
+            item.latestCheckDate = today;
+            var newChecRecord = { checkQty: item.checkQty, checkDate: today };
+
+            if (item.checkHistory == null) {
+                item.checkHistory = [];
+            } 
+            if (item.checkHistory.length>0 && item.checkHistory[item.checkHistory.length - 1].checkDate == today) {
+                item.checkHistory[item.checkHistory.length - 1].checkQty = item.checkQty;
+            } else {
+                item.checkHistory.push(newChecRecord);
+            }
+            
+            if (item.checkHistory.length > maxRecordCnt) {
+                item.checkHistory.shift();
+                item.checkHistory.splice(maxRecordCnt);
+            }
+        })
+        var jqxhr = $.ajax({
+            url: _url,
+            type: 'PUT',
+            dataType: 'json', // 預期從server接收的資料型態
+            contentType: 'application/json', // 要送到server的資料型態
+            data: JSON.stringify(app5.items),
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("secret-key", _key);
+                xhr.setRequestHeader("versioning", false);
+            }
+        })
+        .done(function (data) {
+
+            alert("success");
+            window.location.reload();
+        })
+        .fail(function () {
+            alert("error");
+        })
+        .always(function () {
+            //alert("complete");
+        });
+        jqxhr.always(function () {
+            //alert("second complete");
+        });
+    }
+    function BindData() {
+        var jqxhr = $.ajax({
+            url: _url + "/latest" ,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("secret-key", _key);
+            }
+        })
+            .done(function (data) {
+                
+                _data = data;
+                console.log(data);
+                ShowData(data);
+                //alert("success");
+            })
+            .fail(function () {
+                alert("error");
+            })
+            .always(function () {
+                //alert("complete");
+            });
+        jqxhr.always(function () {
+            //alert("second complete");
+        });
+    }
+    function ShowData(d) {
+        $('#tableMain tbody').empty()
+        d.items.forEach(function (item,idx) {
+            $('#tableMain tbody').append(`
+<tr style="background-color:${item.color}">
+ <td>${item.nm}</td>
+ <td>${item.safeQty}${item.unit}</td>
+ <td><ul class="list-group list-group-horizontal"><li class="list-group-item">${item.checkHistory.join('</li><li class="list-group-item">')}</li></ul></td>
+ <td>${item.latestCheckDate}</td>
+ <td><input class="text-right" style="width:55px" onchange="onCheckQtyChanged(this,${idx})" value="${item.latestCheckDate == new Date().toLocaleDateString() ? item.checkHistory[item.checkHistory.length-1] : ""}" />${item.unit}</td>
+</tr>
+`)
+        })
+       
+    }
+    function onCheckQtyChanged(d, idx) {
+        var item = _data.items[idx];
+        
+        item.checkHistory.push(d.value);
+        item.checkHistory.shift();
+        item.checkHistory.splice(4);
+        item.latestCheckDate = new Date().toLocaleDateString();
+        
+        SaveCheckData();
+        //console.log(d.value);
+    }
+    
+</script>
